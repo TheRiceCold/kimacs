@@ -3,13 +3,18 @@
   emacsPackagesFor,
   emacs30-pgtk,
   makeWrapper,
+  callPackage,
 }: let
   emacsPackage = (emacsPackagesFor emacs30-pgtk).emacsWithPackages (
     epkgs:
       with epkgs; [
         # Use-package
-        use-package
         meow
+        vterm
+        move-dup
+        indent-guide
+        centaur-tabs
+        (callPackage ./theme.nix { })
       ]
   );
 in
