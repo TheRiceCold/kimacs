@@ -8,13 +8,33 @@
   emacsPackage = (emacsPackagesFor emacs30-pgtk).emacsWithPackages (
     epkgs:
       with epkgs; [
-        # Use-package
+        # Keybinds
         meow
-        vterm
         move-dup
+
+        # UI
+        dashboard
         indent-guide
         centaur-tabs
-        (callPackage ./theme.nix { })
+        all-the-icons
+        doom-modeline
+        spacious-padding
+        dired-hacks-utils
+
+        # LSP
+        lsp-ui
+        lsp-mode
+	      nix-mode
+        company
+        company-box
+        typescript-mode
+
+      	# Utils
+      	vterm
+      	popper
+      	hl-todo
+
+        (callPackage ./theme.nix {})
       ]
   );
 in
