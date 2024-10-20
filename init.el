@@ -1,5 +1,4 @@
-(dolist (path '("config" "ide" "org"))
-  (add-to-list 'load-path (locate-user-emacs-file path)))
+(add-to-list 'load-path (locate-user-emacs-file "config"))
 
 (require 'ui)
 (require 'binds)

@@ -1,139 +1,129 @@
-;; Keymaps
-(require 'meow)
-(setq meow-use-clipboard t)
-(setq meow-expand-hint-remove-delay 0)
-(setq meow-use-cursor-position-hack t) ;; meow-append
-(setq meow-use-enhanced-selection-effect t)
+;; Global
+(global-set-key (kbd "C-=") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
-(meow-global-mode 1)
+(defun toggle-case ()
+  (interactive)
+  (let ((char-at-point (char-after)))
+    (delete-char 1)
+    (cond
+     ((equal (upcase char-at-point) char-at-point)
+      (insert (downcase char-at-point)))
 
-(meow-define-keys
-  ;; state
-  'normal
+     ((equal (downcase char-at-point) char-at-point)
+      (insert (upcase char-at-point)))
 
-  '("0" . meow-expand-0)
-  '("9" . meow-expand-9)
-  '("8" . meow-expand-8)
-  '("7" . meow-expand-7)
-  '("6" . meow-expand-6)
-  '("5" . meow-expand-5)
-  '("4" . meow-expand-4)
-  '("3" . meow-expand-3)
-  '("2" . meow-expand-2)
-  '("1" . meow-expand-1)
-  '(")" . meow-forward-slurp)
-  '("(" . meow-forward-barf)
-  '("{" . meow-backward-slurp)
-  '("}" . meow-backward-barf)
-  '("-" . negative-argument)
-  '(";" . meow-reverse)
-  '("," . meow-inner-of-thing)
-  '("." . meow-bounds-of-thing)
-  '("[" . meow-beginning-of-thing)
-  '("]" . meow-end-of-thing)
-  '("b" . meow-back-word)
-  '("B" . backward-word)
+     (t nil))))
 
-  '("c" . meow-change)
+;; Meow
+(use-package meow
+  :demand t
+   :bind (
+    ; '("C-w q" . 'delete-window)
+    ; '("C-w v" . 'split-window-right)
+    ; '("C-w s" . 'split-window-below)
+     ("M-k" . 'move-dup-move-lines-up)
+     ("M-j" . 'move-dup-move-lines-down))
 
-  '("d" . (lambda () (interactive) (meow-save) (delete-active-region)))
+	:config
+	(setq meow-use-clipboard t)
+	(setq meow-expand-hint-remove-delay 0)
+	(setq meow-use-cursor-position-hack t)
+	(setq meow-use-enhanced-selection-effect t)
 
-  '("gg" . beginning-of-buffer)
-  '("G" . end-of-buffer)
-  '("h" . meow-left)
-  '("H" . meow-left-expand)
-  '("j" . meow-next)
-  '("J" . meow-next-expand)
-  '("k" . meow-prev)
-  '("K" . meow-prev-expand)
-  '("l" . meow-right)
-  '("L" . meow-right-expand)
-  '("m" . avy-goto-char-timer)
-  '("o" . meow-open-below)
-  '("O" . meow-open-above)
+	(meow-leader-define-key
+	 '("w" . save-buffer)
+	 '("d" . kill-buffer)
+	 '("ff" . find-file)
+	 '("?" . meow-cheatsheet))
 
-  '("p" . meow-yank)
-  ;; '("P" . (lambda () (interactive) (meow-next) (meow-yank)))
+	(meow-normal-define-key
+	 '(")" . meow-forward-slurp)
+	 '("(" . meow-forward-barf)
+	 '("{" . meow-backward-slurp)
+	 '("}" . meow-backward-barf)
+	 '("-" . negative-argument)
+	 '(";" . meow-reverse)
+	 '("," . meow-inner-of-thing)
+	 '("." . meow-bounds-of-thing)
+	 '("[" . meow-beginning-of-thing)
+	 '("]" . meow-end-of-thing)
+	 '("w" . meow-next-word)
+	 '("W" . forward-word)
+	 '("b" . meow-back-word)
+	 '("B" . backward-word)
 
-  '("Q" . meow-goto-line)
+	 '("cw" . (lambda () (interactive) (meow-save) (meow-change)))
+	 '("dd" . kill-whole-line)
+	 '("dw" . (lambda () (interactive) (meow-save) (delete-region)))
 
-  '("s" . meow-grab)
+	 '("G" . end-of-buffer)
+	 '("gg" . beginning-of-buffer)
+	 '("h" . meow-left)
+	 '("H" . meow-left-expand)
+	 '("j" . meow-next)
+	 '("J" . meow-next-expand)
+	 '("k" . meow-prev)
+	 '("K" . meow-prev-expand)
+	 '("l" . meow-right)
+	 '("L" . meow-right-expand)
+	 '("o" . meow-open-below)
+	 '("O" . meow-open-above)
 
-  '("t" . meow-till)
-  '("u" . meow-undo)
-  '("U" . undo-redo)
+	 '("D" . kill-line)
 
-  '("w" . meow-next-word)
-  '("W" . forward-word)
+	 '("p" . meow-yank)
 
-  '("V" . meow-line-expand)
-  '("y" . (lambda () (interactive) (meow-line-expand) (meow-save)))
+   '("w" . meow-next-word)
+   '("W" . forward-word)
 
-  '("z" . meow-pop-selection)
-  '("." . repeat)
-  '("<escape>" . meow-cancel-selection)
-  '("%" . meow-query-replace)
-  '("&" . meow-query-replace-regexp)
+   '("V" . meow-line-expand)
 
-  ;; Search
-  '("/" . meow-visit)
-  '("n" . meow-search)
+   ;; Search
+   '("/" . meow-visit)
+   '("n" . meow-search)
 
-  ;; Switch into insert mode
-  '("i" . meow-insert)
-  '("I" . (lambda () (interactive) (beginning-of-line-text) (meow-insert)))
-  '("a" . meow-append)
-  '("A" . (lambda () (interactive) (end-of-line) (meow-insert)))
+   ;; Switch into insert mode
+	 
+   '("i" . meow-insert)
+   '("I" . (lambda () (interactive) (beginning-of-line-text) (meow-insert)))
+   '("a" . meow-append)
+   '("A" . (lambda () (interactive) (end-of-line) (meow-insert)))
 
-  ;; Custom
-  '("x" . delete-char)
-  '("C-c" . comment-line)
-  
-  '("C-h" . windmove-left)
-  '("C-l" . windmove-right)
-  '("C-k" . windmove-up)
-  '("C-j" . windmove-down)
-)
+   '("u" . meow-undo)
+   '("U" . undo-redo)
 
-(meow-leader-define-key
-  '("e" . "C-x C-j")
-  '("d" . kill-buffer) 
-  '("ff" . find-file)
-  '("w" . save-buffer)
-  '("b" . buffer-menu)
-  '("fd" . find-name-dired)
-  '("?" . meow-cheatsheet))
+   '("<escape>" . ignore)
 
-(require 'move-dup)
-(global-set-key (kbd "M-k") 'move-dup-move-lines-up)
-(global-set-key (kbd "M-j") 'move-dup-move-lines-down)
+   '("x" . delete-char)
 
-;; Window Prefix
-(defvar-keymap my-window-prefix-map
-  "v" 'split-window-right
-  "s" 'split-window-below
-  "q" 'delete-window
-  "C-w" 'other-window)
+   ;; Custom
+   '("~" . toggle-case)
+   '("C-c" . comment-line))
 
-(keymap-set global-map "C-w" my-window-prefix-map)
+   (meow-global-mode 1))
 
-;; Toggle Prefix
-(defvar-keymap my-toggle-prefix-map
-  "n" 'display-line-numbers-mode)
-(keymap-set global-map "\\" my-toggle-prefix-map)
+;; keymap my-toggle-prefix-map
+  ;; "o" 'org-mode
+  ;; "p" 'prog-mode
+  ;; "c" 'hl-line-mode
+  ;; "m" 'menu-bar-mode
+  ;; "n" 'display-line-numbers-mode)
+  ;; "g" 'my-toggle-global-prefix-map)
 
-;; dired
-(add-hook 'dired-mode-hook 'dired-hide-details-mode)
-(eval-after-load "dired" '(progn
-  (define-key dired-mode-map "k" 'dired-previous-line)
-  (define-key dired-mode-map "K" 'dired-previous-dirline)
-  (define-key dired-mode-map "j" 'dired-next-line)
-  (define-key dired-mode-map "J" 'dired-next-dirline)
-  (define-key dired-mode-map "-" 'dired-up-directory)
-  (define-key dired-mode-map "r" 'dired-do-rename)
-  (define-key dired-mode-map "n" 'dired-create-empty-file)
-  (define-key dired-mode-map "N" 'dired-create-directory)
-  (define-key dired-mode-map "u" 'dired-undo)
-))
+;; Dired remap
+(use-package dired
+	:ensure nil
+	:bind (:map dired-mode-map
+		("k" . dired-previous-line)
+		("K" . dired-previous-dirline)
+		("j" . dired-next-line)
+		("J" . dired-next-dirline)
+		("-" . dired-up-directory)
+		("r" . dired-do-rename)
+		("n" . dired-create-empty-file)
+		("N" . dired-create-directory)
+		("u" . dired-undo)))
 
 (provide 'binds)

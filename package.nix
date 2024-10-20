@@ -1,3 +1,4 @@
+
 {
   runCommand,
   emacsPackagesFor,
@@ -18,8 +19,8 @@
         centaur-tabs
         all-the-icons
         doom-modeline
-        spacious-padding
-        dired-hacks-utils
+        # spacious-padding
+        # dired-hacks-utils
 
         # LSP
         lsp-ui
@@ -30,9 +31,14 @@
         typescript-mode
 
       	# Utils
-      	vterm
-      	popper
+      	# vterm
+        # vterm-toggle
+        popper
+        # zoxide
       	hl-todo
+      	swiper
+      	counsel
+      	ivy-rich
 
         (callPackage ./theme.nix {})
       ]

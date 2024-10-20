@@ -1,7 +1,8 @@
 ;; Nix
 (use-package nix-mode
   :mode "\\.nix\\'"
-  :hook (nix-mode . lsp-deferred))
+  :hook (nix-mode . lsp-deferred)
+  :ensure t)
 
 ;; Typescript
 (use-package typescript-mode
