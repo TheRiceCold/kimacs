@@ -1,5 +1,4 @@
-{ emacsPackages, writeText, ...
-}:
+{ emacsPackages, writeText, ... }:
 emacsPackages.trivialBuild {
   pname = "base16-cyberdream-theme"; # Would use theme slug, but having it static avoids needing to pass values to the .el files
   version = "0.0.1";

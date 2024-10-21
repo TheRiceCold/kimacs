@@ -3,34 +3,73 @@
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
-(defun toggle-case ()
+(defun delete-char-or-region()
+	(interactive)
+	(if (region-active-p)
+		(progn (meow-save) (delete-active-region))
+		(meow-delete)))
+
+(defun toggle-letter-case()
   (interactive)
   (let ((char-at-point (char-after)))
     (delete-char 1)
     (cond
      ((equal (upcase char-at-point) char-at-point)
       (insert (downcase char-at-point)))
-
      ((equal (downcase char-at-point) char-at-point)
       (insert (upcase char-at-point)))
-
      (t nil))))
+
+(defun toggle-word-case()
+  (interactive)
+  (let ((deactivate-mark nil) xp1 xp2)
+    (if (region-active-p)
+        (setq xp1 (region-beginning) xp2 (region-end))
+      (save-excursion
+        (skip-chars-backward "[:alpha:]")
+        (setq xp1 (point))
+        (skip-chars-forward "[:alpha:]")
+        (setq xp2 (point))))
+    (when (not (eq last-command this-command))
+      (put this-command 'state 0))
+    (cond
+     ((equal 0 (get this-command 'state))
+      (upcase-initials-region xp1 xp2)
+      (put this-command 'state 1))
+     ((equal 1 (get this-command 'state))
+      (upcase-region xp1 xp2)
+      (put this-command 'state 2))
+     ((equal 2 (get this-command 'state))
+      (downcase-region xp1 xp2)
+      (put this-command 'state 0)))))
+
+(defvar-keymap my-window-map
+  "v" 'split-window-right
+  "s" 'split-window-below
+  "q" 'delete-window
+  "C-w" 'other-window)
+
+(defvar-keymap my-toggle-map
+  "o" 'org-mode
+  "p" 'prog-mode
+  "c" 'hl-line-mode
+  "m" 'menu-bar-mode
+  "n" 'display-line-numbers-mode)
+  ;; "g" 'my-toggle-global-prefix-map)
 
 ;; Meow
 (use-package meow
   :demand t
    :bind (
-    ; '("C-w q" . 'delete-window)
-    ; '("C-w v" . 'split-window-right)
-    ; '("C-w s" . 'split-window-below)
      ("M-k" . 'move-dup-move-lines-up)
      ("M-j" . 'move-dup-move-lines-down))
 
 	:config
 	(setq meow-use-clipboard t)
-	(setq meow-expand-hint-remove-delay 0)
+	(setq meow-expand-hint-remove-delay 1)
 	(setq meow-use-cursor-position-hack t)
-	(setq meow-use-enhanced-selection-effect t)
+  (setq meow-use-enhanced-selection-effect t)
+	(setq meow-cheatsheet-layout-meow-cheatsheet-layout-qwerty t)
 
 	(meow-leader-define-key
 	 '("w" . save-buffer)
@@ -38,79 +77,85 @@
 	 '("ff" . find-file)
 	 '("?" . meow-cheatsheet))
 
+	(meow-motion-overwrite-define-key
+	 '("d" . delete-active-region))
+
 	(meow-normal-define-key
-	 '(")" . meow-forward-slurp)
-	 '("(" . meow-forward-barf)
-	 '("{" . meow-backward-slurp)
-	 '("}" . meow-backward-barf)
-	 '("-" . negative-argument)
+   '("0" . meow-expand-0)
+   '("9" . meow-expand-9)
+   '("8" . meow-expand-8)
+   '("7" . meow-expand-7)
+   '("6" . meow-expand-6)
+   '("5" . meow-expand-5)
+   '("4" . meow-expand-4)
+   '("3" . meow-expand-3)
+   '("2" . meow-expand-2)
+   	'("1" . meow-expand-1)
+
+	 '("/" . meow-visit)
 	 '(";" . meow-reverse)
-	 '("," . meow-inner-of-thing)
-	 '("." . meow-bounds-of-thing)
+	 '("-" . negative-argument)
 	 '("[" . meow-beginning-of-thing)
 	 '("]" . meow-end-of-thing)
-	 '("w" . meow-next-word)
-	 '("W" . forward-word)
+
+	 '("a" . meow-append)
+	 '("A" . (lambda () (interactive) (end-of-line) (meow-insert)))
 	 '("b" . meow-back-word)
-	 '("B" . backward-word)
-
-	 '("cw" . (lambda () (interactive) (meow-save) (meow-change)))
-	 '("dd" . kill-whole-line)
-	 '("dw" . (lambda () (interactive) (meow-save) (delete-region)))
-
-	 '("G" . end-of-buffer)
+	 '("B" . meow-back-symbol)
+	 '("c" . meow-change)
+	 '("d" . delete-char-or-region)
+	 '("D" . (lambda () (interactive) (meow-save) (kill-line)))
+	 '("G" . meow-grab)
+	 '("ge" . end-of-buffer)
 	 '("gg" . beginning-of-buffer)
-	 '("h" . meow-left)
-	 '("H" . meow-left-expand)
-	 '("j" . meow-next)
-	 '("J" . meow-next-expand)
-	 '("k" . meow-prev)
-	 '("K" . meow-prev-expand)
-	 '("l" . meow-right)
-	 '("L" . meow-right-expand)
-	 '("o" . meow-open-below)
-	 '("O" . meow-open-above)
-
-	 '("D" . kill-line)
+	
+ 	 '("h" . meow-left)
+ 	 '("H" . meow-left-expand)
+ 	 '("i" . meow-insert)
+ 	 '("I" . (lambda () (interactive) (beginning-of-line-text) (meow-insert)))
+ 	 '("j" . meow-next)
+ 	 '("J" . meow-next-expand)
+ 	 '("k" . meow-prev)
+ 	 '("K" . meow-prev-expand)
+ 	 '("l" . meow-right)
+ 	 '("L" . meow-right-expand)
+ 	 '("m" . meow-mark-word)
+ 	 '("M" . meow-mark-symbol)
 
 	 '("p" . meow-yank)
+ 	 '("r" . meow-replace)
+ 	 '("o" . meow-open-below)
+ 	 '("O" . meow-open-above)
+ 	 '("t" . meow-till)
+ 	 '("u" . meow-undo)
+ 	 '("U" . undo-redo)
+ 	 '("w" . meow-next-word)
+	 '("w" . meow-next-symbol)
+	 '("x" . meow-line)
+	 '("y" . meow-save)
+ 
+ 	 '("<escape>" . meow-cancel-selection)
 
-   '("w" . meow-next-word)
-   '("W" . forward-word)
+ 	 ;; Customs
+	 '("`" . toggle-word-case)
+   '("~" . toggle-letter-case)
 
-   '("V" . meow-line-expand)
+	 ;; Centaur
+	 '("M-l" . centaur-tabs-forward)
+	 '("M-h" . centaur-tabs-backward)
 
-   ;; Search
-   '("/" . meow-visit)
-   '("n" . meow-search)
+	 ;; Window movement
+   '("C-c" . comment-line)
+	 '("C-h" . windmove-left)
+	 '("C-j" . windmove-down)
+	 '("C-k" . windmove-up)
+	 '("C-l" . windmove-right)
 
-   ;; Switch into insert mode
-	 
-   '("i" . meow-insert)
-   '("I" . (lambda () (interactive) (beginning-of-line-text) (meow-insert)))
-   '("a" . meow-append)
-   '("A" . (lambda () (interactive) (end-of-line) (meow-insert)))
+	 '(":" . "M-x")
+	 (cons "\\" my-toggle-map)
+	 (cons "C-w" my-window-map))
 
-   '("u" . meow-undo)
-   '("U" . undo-redo)
-
-   '("<escape>" . ignore)
-
-   '("x" . delete-char)
-
-   ;; Custom
-   '("~" . toggle-case)
-   '("C-c" . comment-line))
-
-   (meow-global-mode 1))
-
-;; keymap my-toggle-prefix-map
-  ;; "o" 'org-mode
-  ;; "p" 'prog-mode
-  ;; "c" 'hl-line-mode
-  ;; "m" 'menu-bar-mode
-  ;; "n" 'display-line-numbers-mode)
-  ;; "g" 'my-toggle-global-prefix-map)
+  (meow-global-mode 1))
 
 ;; Dired remap
 (use-package dired

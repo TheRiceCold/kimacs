@@ -9,7 +9,7 @@
 
 ;; Programming mode hooks
 (add-hook 'prog-mode-hook 'hl-todo-mode) ;; Show todo highlights
-(add-hook 'prog-mode-hook 'display-line-numbers-mode) ;; Show line numbers
+;; (add-hook 'prog-mode-hook 'display-line-numbers-mode) ;; Show line numbers
 
 ;; Dired mode hooks
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
@@ -29,7 +29,5 @@
 															compilation-mode))
 	:config
 	(popper-mode 1))
-    
-(popper-mode +1)
 	
 (provide 'utils)
